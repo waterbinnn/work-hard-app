@@ -9,16 +9,27 @@ import {
   TouchableWithoutFeedback,
   Pressable,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import { theme } from './color';
 
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState('');
+  const [toDos, setToDos] = useState({});
 
   const travel = () => setWorking(false);
   const work = () => setWorking(true);
   const onChangeText = (payload) => setText(payload);
+  const addToDo = () => {
+    if (text === '') {
+      return;
+    }
+    //save to do
+    const newToDos = { ...toDos, [Date.now()]: { text, working: working } };
+    setToDos(newToDos);
+    setText('');
+  };
 
   return (
     <View style={styles.container}>
@@ -44,12 +55,22 @@ export default function App() {
       </View>
 
       <TextInput
+        onSubmitEditing={addToDo}
         onChangeText={onChangeText}
         value={text}
-        returnKeyType="send"
+        returnKeyType="done"
         placeholder={working ? 'Add A To Do' : 'Where do you want to go'}
         style={styles.input}
       ></TextInput>
+      <ScrollView>
+        {Object.keys(toDos).map((key) =>
+          toDos[key].working === working ? (
+            <View style={styles.toDo} key={key}>
+              <Text style={styles.toDoText}>{toDos[key].text}</Text>
+            </View>
+          ) : null
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -75,6 +96,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 30,
     marginTop: 20,
+    marginBottom: 20,
     fontSize: 18,
+  },
+  toDo: {
+    backgroundColor: theme.toDoBg,
+    marginBottom: 10,
+    paddingVertical: 20,
+    paddingHorizontal: 40,
+    borderRadius: 15,
+  },
+  toDoText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
